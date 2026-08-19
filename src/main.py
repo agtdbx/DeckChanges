@@ -5,6 +5,7 @@ import customtkinter as ctk
 
 from define import VERSION, APP_TITLES, WINDOW_START_SIZE, WINDOW_MIN_SIZE
 from transformations import DeckParseError, parse_deck_list, get_deck_changes
+from ui.textbox_with_placeholder import TextboxWithPlaceholder
 
 class DeckUpdaterApp(ctk.CTk):
     def __init__(self):
@@ -35,7 +36,7 @@ class DeckUpdaterApp(ctk.CTk):
 
         self.label_info_old = ctk.CTkLabel(self.frame_old, text="", text_color="red")
 
-        self.textbox_old = ctk.CTkTextbox(self.frame_old)
+        self.textbox_old = TextboxWithPlaceholder(self.frame_old, placeholder="1x Approach of the Second Sun")
         self.textbox_old.grid(row=2, column=0, padx=10, pady=10, sticky="nsew")
         self.textbox_old.bind("<Control-a>", lambda e: self.select_all(self.textbox_old))
 
@@ -55,7 +56,7 @@ class DeckUpdaterApp(ctk.CTk):
 
         self.label_info_new = ctk.CTkLabel(self.frame_new, text="", text_color="red")
 
-        self.textbox_new = ctk.CTkTextbox(self.frame_new)
+        self.textbox_new = TextboxWithPlaceholder(self.frame_new, placeholder="2x Island\n1x Counterspell")
         self.textbox_new.grid(row=2, column=0, padx=10, pady=10, sticky="nsew")
         self.textbox_new.bind("<Control-a>", lambda e: self.select_all(self.textbox_new))
 
@@ -166,8 +167,7 @@ if __name__ == "__main__":
         except Exception:
             pass
 
-    # Set system theme for the app (light/dark mode)
-    ctk.set_appearance_mode("System")
+    ctk.set_appearance_mode("dark")
     ctk.set_default_color_theme("blue")
 
     app = DeckUpdaterApp()

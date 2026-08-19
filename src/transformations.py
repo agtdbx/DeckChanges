@@ -1,6 +1,5 @@
 from define import VALID_DECK_SIZES
 
-# Dans transformations.py
 class DeckParseError(Exception):
     pass
 
@@ -34,13 +33,13 @@ def parse_deck_list(deck_list_raw: str) -> list[tuple[int, str]]:
         # Get the number of card
         card_number_end = line.find('x ')
         if card_number_end == -1:
-            raise DeckParseError(f"Error: Invalid card format on line {line_number + 1}")
+            raise DeckParseError(f"Error: Invalid card format on line {line_number + 1}\nExemple : '4x Card Name'")
 
         card_number = 0
         try:
             card_number = int(line[:card_number_end].strip())
         except ValueError:
-            raise DeckParseError(f"Error: Invalid card number on line {line_number + 1}")
+            raise DeckParseError(f"Error: Invalid card number on line {line_number + 1}\nExemple : '4x Card Name'")
 
         number_of_cards += card_number
 
