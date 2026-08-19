@@ -1,0 +1,42 @@
+name: Build Binaries (Windows & Linux)
+
+# When action is triggered
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        # Define target os
+        os: [windows-latest, ubuntu-latest]
+
+    # Define the runner for the job
+    runs-on: ${{ matrix.os }}
+
+    steps:
+    - name: Get the code
+      uses: actions/checkout@v4
+
+    - name: Installer uv
+      uses: astral-sh/setup-uv@v3
+      with:
+        enable-cache: true
+
+    - name: Install Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.14'
+
+    - name: Install dependencies
+      run: uv sync --frozen --no-install-project --no-dev
+
+    - name: Compile with PyInstaller
+      run: uv run pyinstaller --onefile --noconsole main.py
+
+    - name: Save the binary
+      uses: actions/upload-artifact@v4
+      with:
+        name: DeckChanges-${{ matrix.os }}
+        path: dist/*
