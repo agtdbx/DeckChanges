@@ -4,6 +4,8 @@ name: Build Binaries (Windows & Linux)
 on:
   push:
     branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
 
 jobs:
   build:
@@ -33,7 +35,7 @@ jobs:
       run: uv sync --frozen --no-install-project --no-dev
 
     - name: Compile with PyInstaller
-      run: uv run pyinstaller --onefile --noconsole src/main.py
+      run: uv run pyinstaller --name "DeckChanges" --onefile --noconsole src/main.py
 
     - name: Save the binary
       uses: actions/upload-artifact@v4

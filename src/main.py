@@ -1,15 +1,19 @@
+import os
+import ctypes
 import random as rd
 import customtkinter as ctk
 
-from define import APP_TITLES, WINDOW_START_SIZE, WINDOW_MIN_SIZE
+from define import VERSION, APP_TITLES, WINDOW_START_SIZE, WINDOW_MIN_SIZE
 from transformations import DeckParseError, parse_deck_list, get_deck_changes
 
 class DeckUpdaterApp(ctk.CTk):
     def __init__(self):
-        super().__init__()
+        appName = rd.choice(APP_TITLES)
+
+        super().__init__(className=appName)
 
         # Window configuration
-        self.title(rd.choice(APP_TITLES))
+        self.title(appName)
         self.geometry(f"{WINDOW_START_SIZE[0]}x{WINDOW_START_SIZE[1]}")
         self.minsize(WINDOW_MIN_SIZE[0], WINDOW_MIN_SIZE[1])
 
@@ -155,6 +159,13 @@ class DeckUpdaterApp(ctk.CTk):
 
 
 if __name__ == "__main__":
+    if os.name == 'nt':
+        myappid = f'agtdbx.deck_changes.app.{VERSION}' # Une chaîne arbitraire unique
+        try:
+            ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
+        except Exception:
+            pass
+
     # Set system theme for the app (light/dark mode)
     ctk.set_appearance_mode("System")
     ctk.set_default_color_theme("blue")
