@@ -13,7 +13,7 @@ APP_TITLES = [
     "Safe and secure software",
     "ZipBomb.exe",
     "Just a mod",
-    "Send by your friendly discord developer",
+    "Sent by your friendly discord developer",
     "This app will not steal your data",
     "Please provide your credit card information",
     "This app is 100% safe",

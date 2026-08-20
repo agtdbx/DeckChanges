@@ -31,7 +31,7 @@ class DeckUpdaterApp(ctk.CTk):
         self.frame_old.grid_columnconfigure(0, weight=1)
         self.frame_old.grid_rowconfigure(2, weight=1)
 
-        self.label_old = ctk.CTkLabel(self.frame_old, text="Old deck list", font=ctk.CTkFont(weight="bold"))
+        self.label_old = ctk.CTkLabel(self.frame_old, text="Ancienne deck list", font=ctk.CTkFont(weight="bold"))
         self.label_old.grid(row=0, column=0, pady=(5, 0))
 
         self.label_info_old = ctk.CTkLabel(self.frame_old, text="", text_color="red")
@@ -40,7 +40,7 @@ class DeckUpdaterApp(ctk.CTk):
         self.textbox_old.grid(row=2, column=0, padx=10, pady=10, sticky="nsew")
         self.textbox_old.bind("<Control-a>", lambda e: self.select_all(self.textbox_old))
 
-        self.btn_clear_old = ctk.CTkButton(self.frame_old, text="Clear", font=ctk.CTkFont(weight="bold"), command=lambda: self.clear_all(self.textbox_old))
+        self.btn_clear_old = ctk.CTkButton(self.frame_old, text="Vider", font=ctk.CTkFont(weight="bold"), command=lambda: self.clear_all(self.textbox_old))
         self.btn_clear_old.grid(row=3, column=0, columnspan=1, padx=10, pady=10, sticky="ew")
 
         # ==========================================
@@ -51,7 +51,7 @@ class DeckUpdaterApp(ctk.CTk):
         self.frame_new.grid_columnconfigure(0, weight=1)
         self.frame_new.grid_rowconfigure(2, weight=1)
 
-        self.label_new = ctk.CTkLabel(self.frame_new, text="New deck list", font=ctk.CTkFont(weight="bold"))
+        self.label_new = ctk.CTkLabel(self.frame_new, text="Nouvelle deck list", font=ctk.CTkFont(weight="bold"))
         self.label_new.grid(row=0, column=0, pady=(5, 0))
 
         self.label_info_new = ctk.CTkLabel(self.frame_new, text="", text_color="red")
@@ -60,13 +60,13 @@ class DeckUpdaterApp(ctk.CTk):
         self.textbox_new.grid(row=2, column=0, padx=10, pady=10, sticky="nsew")
         self.textbox_new.bind("<Control-a>", lambda e: self.select_all(self.textbox_new))
 
-        self.btn_clear_new = ctk.CTkButton(self.frame_new, text="Clear", font=ctk.CTkFont(weight="bold"), command=lambda: self.clear_all(self.textbox_new))
+        self.btn_clear_new = ctk.CTkButton(self.frame_new, text="Vider", font=ctk.CTkFont(weight="bold"), command=lambda: self.clear_all(self.textbox_new))
         self.btn_clear_new.grid(row=3, column=0, columnspan=1, padx=10, pady=10, sticky="ew")
 
         # ==========================================
         # BOUTON
         # ==========================================
-        self.btn_changes = ctk.CTkButton(self, text="Get changes", font=ctk.CTkFont(weight="bold"), command=self.show_changes_popup)
+        self.btn_changes = ctk.CTkButton(self, text="Voir les changements", font=ctk.CTkFont(weight="bold"), command=self.show_changes_popup)
         self.btn_changes.grid(row=1, column=0, columnspan=2, padx=10, pady=10, sticky="ew")
 
 
@@ -90,8 +90,8 @@ class DeckUpdaterApp(ctk.CTk):
 
     def show_changes_popup(self):
         # Get raw deck lists from textboxes
-        deck_list_old_raw = self.textbox_old.get("1.0", "end-1c")
-        deck_list_new_raw = self.textbox_new.get("1.0", "end-1c")
+        deck_list_old_raw = self.textbox_old.get_content()
+        deck_list_new_raw = self.textbox_new.get_content()
 
         # Parse deck lists
         need_exit = False
@@ -120,7 +120,7 @@ class DeckUpdaterApp(ctk.CTk):
 
         # Create popup window
         popup = ctk.CTkToplevel(self)
-        popup.title("Changes")
+        popup.title("Changements")
         popup.geometry("400x300")
         popup.grab_set() # Make popup modal (block interaction with main window)
         popup.attributes('-topmost', True) # Make popup always on top of the main window
@@ -152,16 +152,16 @@ class DeckUpdaterApp(ctk.CTk):
             self.clipboard_append(changes_copy)
             btn_copy.configure(text="Copié ! ✔️", fg_color="green")
             # Remet le bouton à son état normal après 2 secondes
-            popup.after(2000, lambda: btn_copy.configure(text="Copy changes", fg_color=["#3B8ED0", "#1F6AA5"]))
+            popup.after(2000, lambda: btn_copy.configure(text="Copier les changements", fg_color=["#3B8ED0", "#1F6AA5"]))
 
         # 5. Copy button
-        btn_copy = ctk.CTkButton(popup, text="Copy changes", command=copy_to_clipboard)
+        btn_copy = ctk.CTkButton(popup, text="Copier les changements", command=copy_to_clipboard)
         btn_copy.grid(row=1, column=0, padx=10, pady=10, sticky="ew")
 
 
 if __name__ == "__main__":
     if os.name == 'nt':
-        myappid = f'agtdbx.deck_changes.app.{VERSION}' # Une chaîne arbitraire unique
+        myappid = f'agtdbx.deck_changes.app.{VERSION}'
         try:
             ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
         except Exception:

@@ -7,10 +7,10 @@ class TextboxWithPlaceholder(ctk.CTkTextbox):
         self.default_text_color = self.cget("text_color")
         self.placeholder_color = "gray"
 
-        # On met le texte indicatif au démarrage
+        # Setup placeholder
         self.put_placeholder()
 
-        # On écoute les entrées et sorties de la zone de texte
+        # Listen for focus events to manage the placeholder
         self.bind("<FocusIn>", self.remove_placeholder)
         self.bind("<FocusOut>", self.check_placeholder)
 
@@ -19,18 +19,18 @@ class TextboxWithPlaceholder(ctk.CTkTextbox):
         self.configure(text_color=self.placeholder_color)
 
     def remove_placeholder(self, event=None):
-        # Si le texte actuel est le hint, on l'efface quand l'utilisateur clique
+        # If the user clicks and the current text is the hint, we clear it
         if self.get("1.0", "end-1c") == self.placeholder:
             self.delete("1.0", "end")
             self.configure(text_color=self.default_text_color)
 
     def check_placeholder(self, event=None):
-        # Si l'utilisateur clique ailleurs et que la case est vide, on remet le hint
+        # Setup placeholder if the textbox is empty when it loses focus
         if not self.get("1.0", "end-1c").strip():
             self.put_placeholder()
 
     def get_content(self):
-        # Une méthode pratique pour ne pas récupérer le hint par erreur lors du parsing
+        # Avoid getting hint when getting content
         text = self.get("1.0", "end-1c")
         if text == self.placeholder:
             return ""

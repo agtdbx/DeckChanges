@@ -33,13 +33,13 @@ def parse_deck_list(deck_list_raw: str) -> list[tuple[int, str]]:
         # Get the number of card
         card_number_end = line.find('x ')
         if card_number_end == -1:
-            raise DeckParseError(f"Error: Invalid card format on line {line_number + 1}\nExemple : '4x Card Name'")
+            raise DeckParseError(f"Erreur : Format de carte invalide sur la ligne {line_number + 1}\nExemple : '4x Card Name'")
 
         card_number = 0
         try:
             card_number = int(line[:card_number_end].strip())
         except ValueError:
-            raise DeckParseError(f"Error: Invalid card number on line {line_number + 1}\nExemple : '4x Card Name'")
+            raise DeckParseError(f"Erreur : Nombre de cartes invalide sur la ligne {line_number + 1}\nExemple : '4x Card Name'")
 
         number_of_cards += card_number
 
@@ -48,10 +48,11 @@ def parse_deck_list(deck_list_raw: str) -> list[tuple[int, str]]:
         deck_list.append((card_number, card_name))
 
     if number_of_cards == 0:
-        raise DeckParseError("Error: The deck is empty")
+        raise DeckParseError("Erreur : Le deck est vide")
 
     if number_of_cards not in VALID_DECK_SIZES:
-        warning_message = f"Warning: The deck contains {number_of_cards} cards instead of {VALID_DECK_SIZES}"
+        smart_s = "s" if number_of_cards > 1 else ""
+        warning_message = f"Attention : Le deck contient {number_of_cards} carte{smart_s} au lieu de {VALID_DECK_SIZES}"
 
     return (deck_list, warning_message)
 
@@ -92,7 +93,8 @@ def get_deck_changes(
             number_of_changes += card_number - card_number_new
 
     # Get changes
-    changes_display = f"{number_of_changes} changes :\n"
+    smart_s = "s" if number_of_changes > 1 else ""
+    changes_display = f"{number_of_changes} changement{smart_s} :\n"
     changes_copy = ""
     for card_number, card_name in added_cards:
         if card_number > 1:
@@ -102,7 +104,8 @@ def get_deck_changes(
             changes_display += f"+ {card_name}\n"
             changes_copy += f"+ {card_name}\n"
 
-    changes_copy += "\n"
+    if added_cards and removed_cards:
+        changes_copy += "\n"
 
     for card_number, card_name in removed_cards:
         if card_number > 1:
