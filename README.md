@@ -43,3 +43,6 @@ Le projet est configuré avec des GitHub Actions. Chaque push ou pull request ve
 Pour télécharger la dernière version :
 1. Allez dans l'onglet **Releases** sur GitHub.
 2. Téléchargez `DeckUpdater-windows` ou `DeckUpdater-ubuntu` situé dans la dernière release.
+
+## 👥 Auteur
+**Auguste Deroubaix** (agtdbx) 🔗 [GitHub](https://github.com/agtdbx)
