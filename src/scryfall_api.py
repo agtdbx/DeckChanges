@@ -4,6 +4,7 @@ import customtkinter as ctk
 
 from define import VERSION, CONTACT_EMAIL
 from PIL import Image
+from functools import lru_cache
 
 SCRYFALL_URL = "https://api.scryfall.com"
 HEADERS = {
@@ -12,6 +13,7 @@ HEADERS = {
 CARD_IMAGE_SIZE = (250, 350)
 
 # Delver of Secrets
+@lru_cache(maxsize=100)
 def get_card_images(
         card_name: str
         ) -> tuple[ctk.CTkImage, ctk.CTkImage | None] | None:
@@ -66,5 +68,6 @@ def _get_image_from_uris(
 
     image_data = reponse_image.content
     image = Image.open(io.BytesIO(image_data))
+    image.thumbnail(CARD_IMAGE_SIZE)
 
     return ctk.CTkImage(light_image=image, dark_image=image, size=CARD_IMAGE_SIZE)
