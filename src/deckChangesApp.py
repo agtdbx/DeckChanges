@@ -64,7 +64,7 @@ class DeckChangesApp(ctk.CTk):
         self.decklist_old = None
         self.textbox_old.bind("<KeyRelease>", lambda e: self.schedule_parsing('old'))
 
-        self.btn_clear_old = ctk.CTkButton(self.frame_old, text="Vider", font=ctk.CTkFont(weight="bold"), command=lambda: self.clear_all(self.textbox_old, self.label_info_old))
+        self.btn_clear_old = ctk.CTkButton(self.frame_old, text="Vider", font=ctk.CTkFont(weight="bold"), command=lambda: self.clear_old)
         self.btn_clear_old.grid(row=3, column=0, columnspan=1, padx=10, pady=10, sticky="ew")
 
         # ==========================================
@@ -88,7 +88,7 @@ class DeckChangesApp(ctk.CTk):
         self.decklist_new = None
         self.textbox_new.bind("<KeyRelease>", lambda e: self.schedule_parsing('new'))
 
-        self.btn_clear_new = ctk.CTkButton(self.frame_new, text="Vider", font=ctk.CTkFont(weight="bold"), command=lambda: self.clear_all(self.textbox_new, self.label_info_new))
+        self.btn_clear_new = ctk.CTkButton(self.frame_new, text="Vider", font=ctk.CTkFont(weight="bold"), command=lambda: self.clear_new)
         self.btn_clear_new.grid(row=3, column=0, columnspan=1, padx=10, pady=10, sticky="ew")
 
         # ==========================================
@@ -156,10 +156,18 @@ class DeckChangesApp(ctk.CTk):
         return "break"
 
 
-    def clear_all(self, textbox, label_info):
-        textbox.delete("1.0", "end")
-        textbox.put_placeholder()
-        self.update_deck_info(label_info, "")
+    def clear_old(self):
+        self.textbox_old.delete("1.0", "end")
+        self.textbox_old.put_placeholder()
+        self.update_deck_info(self.label_info_old, "")
+        self.decklist_old = None
+
+
+    def clear_new(self):
+        self.textbox_new.delete("1.0", "end")
+        self.textbox_new.put_placeholder()
+        self.update_deck_info(self.label_info_new, "")
+        self.decklist_new = None
 
 
     def update_deck_info(self, label, message: str, is_warning: bool = False):
@@ -261,7 +269,7 @@ class DeckChangesApp(ctk.CTk):
                 self.update_deck_info(self.label_info_new, str(e), is_warning=False)
                 need_exit = True
 
-        if need_exit:
+        if need_exit or self.decklist_old is None or self.decklist_new is None:
             return
 
         # Get changes

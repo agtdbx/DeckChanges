@@ -19,12 +19,15 @@ def get_card_images(
     # Get card info
     url = f"{SCRYFALL_API_URL}/cards/named?fuzzy={card_name}"
 
-    response = requests.get(url, headers=HEADERS)
-    if response.status_code != 200:
-        return None
+    try:
+        response = requests.get(url, headers=HEADERS)
+        if response.status_code != 200:
+            return None
 
-    # Get image url for response
-    card_data = response.json()
+        # Get image url for response
+        card_data = response.json()
+    except:
+        return None
 
     if "image_uris" in card_data:
         image = _get_image_from_uris(card_data.get("image_uris"))
@@ -58,11 +61,14 @@ def _get_image_from_uris(
             break
 
     if not image_url:
-            return None
+        return None
 
     # Get image data
-    reponse_image = requests.get(image_url, headers=HEADERS)
-    if reponse_image.status_code != 200:
+    try:
+        reponse_image = requests.get(image_url, headers=HEADERS)
+        if reponse_image.status_code != 200:
+            return None
+    except:
         return None
 
     image_data = reponse_image.content

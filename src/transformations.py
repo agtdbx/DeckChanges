@@ -1,7 +1,9 @@
 from define import VALID_DECK_SIZES
 
+
 class DeckParseError(Exception):
     pass
+
 
 def parse_decklist(deck_list_raw: str) -> list[tuple[int, str]]:
     warning_message = ""
@@ -57,7 +59,7 @@ def parse_decklist(deck_list_raw: str) -> list[tuple[int, str]]:
     return (deck_list, warning_message)
 
 
-def _getCardNumber(deck_list, card_name):
+def _get_card_number(deck_list, card_name):
     for card_number, name in deck_list:
         if name == card_name:
             return card_number
@@ -73,7 +75,7 @@ def get_deck_changes(
     # Get added cards
     added_cards = []
     for card_number, card_name in deck_list_new:
-        card_number_old = _getCardNumber(deck_list_old, card_name)
+        card_number_old = _get_card_number(deck_list_old, card_name)
         if card_number == 0:
             added_cards.append((card_number, card_name))
             number_of_changes += 1
@@ -84,7 +86,7 @@ def get_deck_changes(
     # Get removed cards
     removed_cards = []
     for card_number, card_name in deck_list_old:
-        card_number_new = _getCardNumber(deck_list_new, card_name)
+        card_number_new = _get_card_number(deck_list_new, card_name)
         if card_number == 0:
             removed_cards.append((card_number, card_name))
             number_of_changes += 1
@@ -99,20 +101,20 @@ def create_changes_copy(
         added_cards: list[tuple[int, str]],
         removed_cards: list[tuple[int, str]]
         ) -> str:
-    changes_copy = ""
+    changes = []
     for card_number, card_name in added_cards:
         if card_number > 1:
-            changes_copy += f"+ {card_number} {card_name}\n"
+            changes.append(f"+ {card_number} {card_name}")
         else:
-            changes_copy += f"+ {card_name}\n"
+            changes.append(f"+ {card_name}")
 
     if added_cards and removed_cards:
-        changes_copy += "\n"
+        changes.append("")
 
     for card_number, card_name in removed_cards:
         if card_number > 1:
-            changes_copy += f"- {card_number} {card_name}\n"
+            changes.append(f"- {card_number} {card_name}")
         else:
-            changes_copy += f"- {card_name}\n"
+            changes.append(f"- {card_name}")
 
-    return changes_copy[:-1]
+    return "\n".join(changes)

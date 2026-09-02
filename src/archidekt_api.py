@@ -27,13 +27,16 @@ def _get_decklist_from_archidekt(url: str) -> str:
         return ""
 
     url = f"{ARCHIDEKT_API_URL}/decks/{deck_id}/"
-    response = requests.get(url, headers=HEADERS)
-    if response.status_code != 200:
+    try:
+        response = requests.get(url, headers=HEADERS)
+        if response.status_code != 200:
+            return ""
+
+        data = response.json()
+    except:
         return ""
 
-    data = response.json()
-
-    decklist = ""
+    decklist = []
 
     for card_entry in data.get("cards", []):
 
@@ -48,12 +51,9 @@ def _get_decklist_from_archidekt(url: str) -> str:
 
         quantity = card_entry["quantity"]
         card_name = card_entry["card"]["oracleCard"]["name"]
-        decklist += f"{quantity}x {card_name}\n"
+        decklist.append(f"{quantity}x {card_name}")
 
-        if card_name == "Dwalin, Weaponmaster":
-            print(card_entry)
-
-    return decklist[:-1]
+    return '\n'.join(decklist)
 
 
 def _get_deck_id_from_url(url: str) -> str:
