@@ -4,6 +4,7 @@ import customtkinter as ctk
 from define import APP_TITLES, WINDOW_START_SIZE, WINDOW_MIN_SIZE
 from transformations import DeckParseError, parse_deck_list, get_deck_changes, create_changes_copy
 from ui.textbox_with_placeholder import TextboxWithPlaceholder
+from scryfall_api import get_card_art
 
 class DeckChangesApp(ctk.CTk):
     def __init__(self):
@@ -109,7 +110,7 @@ class DeckChangesApp(ctk.CTk):
         # Image for art of the card selected
         self.image_preview_label = ctk.CTkLabel(
             tab_changes,
-            text="Aperçu de la carte\nIntrouvable",
+            text="Pas de carte\nsélectionnée",
             font=ctk.CTkFont(size=20, weight="bold"),
             fg_color=("gray80", "gray20"), # Fond visible pour prototyper
             corner_radius=10
@@ -175,6 +176,9 @@ class DeckChangesApp(ctk.CTk):
         for widget in self.scrollable_changes.winfo_children():
             widget.destroy()
 
+        # Clear image preview
+        self.image_preview_label.configure(image=None, text=f"Pas de carte\nsélectionnée")
+
         # Update label for nb changes
         if number_of_changes > 0:
             smart_s = "s" if number_of_changes > 1 else ""
@@ -184,8 +188,14 @@ class DeckChangesApp(ctk.CTk):
 
         # Callback of card in changes
         def on_card_click(card_name):
-            # Placeholder instead of api call
-            self.image_preview_label.configure(text=f"Chargement de l'art pour :\n{card_name}")
+            card_art = get_card_art(card_name)
+
+            if card_art and card_art[0]:
+                self.image_preview_label.configure(image=card_art[0], text="")
+            else:
+                self.image_preview_label.configure(image=None, text=f"Impossible de trouver l'art pour :\n{card_name}")
+
+        # TODO: Make click flip card art if possible
 
         # Fill changes list with added cards
         for card_number, card_name in added_cards:

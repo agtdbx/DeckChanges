@@ -1,4 +1,5 @@
 VERSION = "1.0.0"
+CONTACT_EMAIL = "auguste.deroubaix@gmail.com"
 
 WINDOW_START_SIZE = (800, 600)
 WINDOW_MIN_SIZE = (600, 400)
