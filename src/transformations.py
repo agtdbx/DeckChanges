@@ -67,7 +67,7 @@ def _getCardNumber(deck_list, card_name):
 def get_deck_changes(
         deck_list_old: list[tuple[int, str]],
         deck_list_new: list[tuple[int, str]]
-        ) -> tuple[str, int]:
+        ) -> tuple[list[tuple[int, str]], list[tuple[int, str]], int]:
     number_of_changes = 0
 
     # Get added cards
@@ -92,16 +92,18 @@ def get_deck_changes(
             removed_cards.append((card_number - card_number_new, card_name))
             number_of_changes += card_number - card_number_new
 
-    # Get changes
-    smart_s = "s" if number_of_changes > 1 else ""
-    changes_display = f"{number_of_changes} changement{smart_s} :\n"
+    return (added_cards, removed_cards, number_of_changes)
+
+
+def create_changes_copy(
+        added_cards: list[tuple[int, str]],
+        removed_cards: list[tuple[int, str]]
+        ) -> str:
     changes_copy = ""
     for card_number, card_name in added_cards:
         if card_number > 1:
-            changes_display += f"+ {card_number} {card_name}\n"
             changes_copy += f"+ {card_number} {card_name}\n"
         else:
-            changes_display += f"+ {card_name}\n"
             changes_copy += f"+ {card_name}\n"
 
     if added_cards and removed_cards:
@@ -109,13 +111,8 @@ def get_deck_changes(
 
     for card_number, card_name in removed_cards:
         if card_number > 1:
-            changes_display += f"- {card_number} {card_name}\n"
             changes_copy += f"- {card_number} {card_name}\n"
         else:
-            changes_display += f"- {card_name}\n"
             changes_copy += f"- {card_name}\n"
 
-    changes_display = changes_display[:-1]
-    changes_copy = changes_copy[:-1]
-
-    return (changes_display, changes_copy)
+    return changes_copy[:-1]
