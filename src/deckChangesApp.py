@@ -1,10 +1,11 @@
 import random as rd
 import customtkinter as ctk
 
-from define import APP_TITLES, WINDOW_START_SIZE, WINDOW_MIN_SIZE, ASYNC_PARSING_TIME
+from define import APP_TITLES, WINDOW_START_SIZE, WINDOW_MIN_SIZE, ASYNC_PARSING_TIME, ARCHIDEKT_URL
 from transformations import DeckParseError, parse_decklist, get_deck_changes, create_changes_copy
 from ui.textbox_with_placeholder import TextboxWithPlaceholder
 from scryfall_api import get_card_images
+from archidekt_api import replace_url_by_decklist
 
 class DeckChangesApp(ctk.CTk):
     def __init__(self):
@@ -63,7 +64,7 @@ class DeckChangesApp(ctk.CTk):
         self.decklist_old = None
         self.textbox_old.bind("<KeyRelease>", lambda e: self.schedule_parsing('old'))
 
-        self.btn_clear_old = ctk.CTkButton(self.frame_old, text="Vider", font=ctk.CTkFont(weight="bold"), command=lambda: self.clear_all(self.textbox_old))
+        self.btn_clear_old = ctk.CTkButton(self.frame_old, text="Vider", font=ctk.CTkFont(weight="bold"), command=lambda: self.clear_all(self.textbox_old, self.label_info_old))
         self.btn_clear_old.grid(row=3, column=0, columnspan=1, padx=10, pady=10, sticky="ew")
 
         # ==========================================
@@ -87,7 +88,7 @@ class DeckChangesApp(ctk.CTk):
         self.decklist_new = None
         self.textbox_new.bind("<KeyRelease>", lambda e: self.schedule_parsing('new'))
 
-        self.btn_clear_new = ctk.CTkButton(self.frame_new, text="Vider", font=ctk.CTkFont(weight="bold"), command=lambda: self.clear_all(self.textbox_new))
+        self.btn_clear_new = ctk.CTkButton(self.frame_new, text="Vider", font=ctk.CTkFont(weight="bold"), command=lambda: self.clear_all(self.textbox_new, self.label_info_new))
         self.btn_clear_new.grid(row=3, column=0, columnspan=1, padx=10, pady=10, sticky="ew")
 
         # ==========================================
@@ -155,8 +156,10 @@ class DeckChangesApp(ctk.CTk):
         return "break"
 
 
-    def clear_all(self, textbox):
+    def clear_all(self, textbox, label_info):
         textbox.delete("1.0", "end")
+        textbox.put_placeholder()
+        self.update_deck_info(label_info, "")
 
 
     def update_deck_info(self, label, message: str, is_warning: bool = False):
@@ -198,6 +201,14 @@ class DeckChangesApp(ctk.CTk):
                 self.decklist_new = None
             return
 
+        if ARCHIDEKT_URL in raw_text:
+            raw_text = replace_url_by_decklist(raw_text)
+
+            if mode == 'old':
+                self.textbox_old.set_content(raw_text)
+            else:
+                self.textbox_new.set_content(raw_text)
+
         try:
             decklist, warning_message = parse_decklist(raw_text)
             self.update_deck_info(label, warning_message, is_warning=True)
@@ -224,6 +235,10 @@ class DeckChangesApp(ctk.CTk):
 
         if self.decklist_old == None:
             decklist_old_raw = self.textbox_old.get_content()
+            if ARCHIDEKT_URL in decklist_old_raw:
+                decklist_old_raw = replace_url_by_decklist(decklist_old_raw)
+                self.textbox_old.set_content(decklist_old_raw)
+
             try:
                 decklist_old, warning_message = parse_decklist(decklist_old_raw)
                 self.update_deck_info(self.label_info_old, warning_message, is_warning=True)
@@ -234,7 +249,10 @@ class DeckChangesApp(ctk.CTk):
 
         if self.decklist_new == None:
             decklist_new_raw = self.textbox_new.get_content()
-            decklist_new = None
+            if ARCHIDEKT_URL in decklist_new_raw:
+                decklist_new_raw = replace_url_by_decklist(decklist_new_raw)
+                self.textbox_new.set_content(decklist_new_raw)
+
             try:
                 decklist_new, warning_message = parse_decklist(decklist_new_raw)
                 self.update_deck_info(self.label_info_new, warning_message, is_warning=True)

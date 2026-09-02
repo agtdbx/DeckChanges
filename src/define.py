@@ -24,7 +24,9 @@ APP_TITLES = [
 
 VALID_DECK_SIZES = [40, 60, 100]
 
-SCRYFALL_URL = "https://api.scryfall.com"
+SCRYFALL_API_URL = "https://api.scryfall.com"
+ARCHIDEKT_URL = "https://archidekt.com"
+ARCHIDEKT_API_URL = f"{ARCHIDEKT_URL}/api"
 CARD_IMAGE_SIZE = (250, 350)
 
 ASYNC_PARSING_TIME = 1000

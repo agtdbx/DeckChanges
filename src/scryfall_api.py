@@ -2,9 +2,10 @@ import io
 import requests
 import customtkinter as ctk
 
-from define import VERSION, CONTACT_EMAIL, SCRYFALL_URL, CARD_IMAGE_SIZE
+from define import VERSION, CONTACT_EMAIL, SCRYFALL_API_URL, CARD_IMAGE_SIZE
 from PIL import Image
 from functools import lru_cache
+
 
 HEADERS = {
     "User-Agent": f"DeckChanges/{VERSION} ({CONTACT_EMAIL})"
@@ -16,7 +17,7 @@ def get_card_images(
         card_name: str
         ) -> tuple[ctk.CTkImage, ctk.CTkImage | None] | None:
     # Get card info
-    url = f"{SCRYFALL_URL}/cards/named?fuzzy={card_name}"
+    url = f"{SCRYFALL_API_URL}/cards/named?fuzzy={card_name}"
 
     response = requests.get(url, headers=HEADERS)
     if response.status_code != 200:
