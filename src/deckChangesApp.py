@@ -64,7 +64,7 @@ class DeckChangesApp(ctk.CTk):
         self.decklist_old = None
         self.textbox_old.bind("<KeyRelease>", lambda e: self.schedule_parsing('old'))
 
-        self.btn_clear_old = ctk.CTkButton(self.frame_old, text="Vider", font=ctk.CTkFont(weight="bold"), command=lambda: self.clear_old)
+        self.btn_clear_old = ctk.CTkButton(self.frame_old, text="Vider", font=ctk.CTkFont(weight="bold"), command=self.clear_old)
         self.btn_clear_old.grid(row=3, column=0, columnspan=1, padx=10, pady=10, sticky="ew")
 
         # ==========================================
@@ -88,7 +88,7 @@ class DeckChangesApp(ctk.CTk):
         self.decklist_new = None
         self.textbox_new.bind("<KeyRelease>", lambda e: self.schedule_parsing('new'))
 
-        self.btn_clear_new = ctk.CTkButton(self.frame_new, text="Vider", font=ctk.CTkFont(weight="bold"), command=lambda: self.clear_new)
+        self.btn_clear_new = ctk.CTkButton(self.frame_new, text="Vider", font=ctk.CTkFont(weight="bold"), command=self.clear_new)
         self.btn_clear_new.grid(row=3, column=0, columnspan=1, padx=10, pady=10, sticky="ew")
 
         # ==========================================
@@ -140,7 +140,6 @@ class DeckChangesApp(ctk.CTk):
 
         # Button switch image
         self.btn_flip_image = ctk.CTkButton(self.frame_card_image, text="Retourner la carte", command=self.flip_card_image)
-        # self.btn_flip_image.grid(row=1, column=0, padx=10, pady=10, sticky="sew")
         self.card_images = None
 
         # ==========================================
@@ -291,6 +290,15 @@ class DeckChangesApp(ctk.CTk):
         else:
             self.label_nb_changes.configure(text="Pas de modifications")
 
+        # Fonction pour griser/dégriser un bouton au clic droit
+        def toggle_check(event, button, original_text_color):
+            if button.cget("fg_color") == "transparent":
+                # On met un fond gris foncé et on ternit le texte
+                button.configure(fg_color=(original_text_color, original_text_color), text_color="gray20")
+            else:
+                # On remet l'état normal
+                button.configure(fg_color="transparent", text_color=original_text_color)
+
         # Fill changes list with added cards
         for card_number, card_name in added_cards:
             text = ""
@@ -308,6 +316,7 @@ class DeckChangesApp(ctk.CTk):
                 command=lambda name=card_name: self.on_card_click(name)
             )
             btn.pack(fill="x", pady=2)
+            btn.bind("<Button-3>", lambda e, b=btn: toggle_check(e, b, "lightgreen"))
 
         # Fill changes list with added cards
         for card_number, card_name in removed_cards:
@@ -326,6 +335,7 @@ class DeckChangesApp(ctk.CTk):
                 command=lambda name=card_name: self.on_card_click(name)
             )
             btn.pack(fill="x", pady=2)
+            btn.bind("<Button-3>", lambda e, b=btn: toggle_check(e, b, "salmon"))
 
         self.tabview.set("changes")
 

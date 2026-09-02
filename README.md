@@ -4,6 +4,7 @@ Une application de bureau moderne et légère pour comparer facilement deux list
 
 ## ✨ Fonctionnalités
 - **Comparaison claire :** Voyez instantanément quelles cartes ont été ajoutées ou retirées entre deux versions d'un deck.
+- **Checklist d'assemblage :** Faites un clic droit sur une modification pour la marquer de façon bien visible (inversion des couleurs) et pointer facilement les changements déjà faits.
 - **Prévisualisation des cartes :** Affichez l'illustration des cartes (recto et verso) d'un simple clic grâce à l'intégration de l'API Scryfall.
 - **Import Archidekt intelligent :** Collez directement l'URL d'un deck Archidekt ; l'application extraira automatiquement la liste des cartes.
 - **Analyse intelligente :** Ignore automatiquement les sections `Maybeboard`, les balises d'édition (ex: `(M21)`), et les catégories personnalisées (ex: `[Commander]`).
