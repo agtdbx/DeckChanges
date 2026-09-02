@@ -1,4 +1,4 @@
-VERSION = "1.0.0"
+VERSION = "1.1.0"
 CONTACT_EMAIL = "auguste.deroubaix@gmail.com"
 
 WINDOW_START_SIZE = (800, 600)
@@ -23,3 +23,8 @@ APP_TITLES = [
 ]
 
 VALID_DECK_SIZES = [40, 60, 100]
+
+SCRYFALL_URL = "https://api.scryfall.com"
+CARD_IMAGE_SIZE = (250, 350)
+
+ASYNC_PARSING_TIME = 1000

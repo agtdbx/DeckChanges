@@ -2,17 +2,15 @@ import io
 import requests
 import customtkinter as ctk
 
-from define import VERSION, CONTACT_EMAIL
+from define import VERSION, CONTACT_EMAIL, SCRYFALL_URL, CARD_IMAGE_SIZE
 from PIL import Image
 from functools import lru_cache
 
-SCRYFALL_URL = "https://api.scryfall.com"
 HEADERS = {
     "User-Agent": f"DeckChanges/{VERSION} ({CONTACT_EMAIL})"
 }
-CARD_IMAGE_SIZE = (250, 350)
 
-# Delver of Secrets
+
 @lru_cache(maxsize=100)
 def get_card_images(
         card_name: str

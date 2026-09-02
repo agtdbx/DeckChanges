@@ -3,7 +3,7 @@ from define import VALID_DECK_SIZES
 class DeckParseError(Exception):
     pass
 
-def parse_deck_list(deck_list_raw: str) -> list[tuple[int, str]]:
+def parse_decklist(deck_list_raw: str) -> list[tuple[int, str]]:
     warning_message = ""
 
     # Parse deck list
@@ -33,13 +33,13 @@ def parse_deck_list(deck_list_raw: str) -> list[tuple[int, str]]:
         # Get the number of card
         card_number_end = line.find('x ')
         if card_number_end == -1:
-            raise DeckParseError(f"Erreur : Format de carte invalide sur la ligne {line_number + 1}\nExemple : '4x Card Name'")
+            raise DeckParseError(f"Erreur : Format de carte invalide\nsur la ligne {line_number + 1}\nExemple : '4x Card Name'")
 
         card_number = 0
         try:
             card_number = int(line[:card_number_end].strip())
         except ValueError:
-            raise DeckParseError(f"Erreur : Nombre de cartes invalide sur la ligne {line_number + 1}\nExemple : '4x Card Name'")
+            raise DeckParseError(f"Erreur : Nombre de cartes invalide\nsur la ligne {line_number + 1}\nExemple : '4x Card Name'")
 
         number_of_cards += card_number
 
@@ -52,7 +52,7 @@ def parse_deck_list(deck_list_raw: str) -> list[tuple[int, str]]:
 
     if number_of_cards not in VALID_DECK_SIZES:
         smart_s = "s" if number_of_cards > 1 else ""
-        warning_message = f"Attention : Le deck contient {number_of_cards} carte{smart_s} au lieu de {VALID_DECK_SIZES}"
+        warning_message = f"Attention : Le deck contient {number_of_cards} carte{smart_s}\nau lieu de {VALID_DECK_SIZES}"
 
     return (deck_list, warning_message)
 

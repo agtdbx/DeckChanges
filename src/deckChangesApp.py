@@ -1,8 +1,8 @@
 import random as rd
 import customtkinter as ctk
 
-from define import APP_TITLES, WINDOW_START_SIZE, WINDOW_MIN_SIZE
-from transformations import DeckParseError, parse_deck_list, get_deck_changes, create_changes_copy
+from define import APP_TITLES, WINDOW_START_SIZE, WINDOW_MIN_SIZE, ASYNC_PARSING_TIME
+from transformations import DeckParseError, parse_decklist, get_deck_changes, create_changes_copy
 from ui.textbox_with_placeholder import TextboxWithPlaceholder
 from scryfall_api import get_card_images
 
@@ -59,6 +59,10 @@ class DeckChangesApp(ctk.CTk):
         self.textbox_old.grid(row=2, column=0, padx=10, pady=10, sticky="nsew")
         self.textbox_old.bind("<Control-a>", lambda e: self.select_all(self.textbox_old))
 
+        self._timer_old = None
+        self.decklist_old = None
+        self.textbox_old.bind("<KeyRelease>", lambda e: self.schedule_parsing('old'))
+
         self.btn_clear_old = ctk.CTkButton(self.frame_old, text="Vider", font=ctk.CTkFont(weight="bold"), command=lambda: self.clear_all(self.textbox_old))
         self.btn_clear_old.grid(row=3, column=0, columnspan=1, padx=10, pady=10, sticky="ew")
 
@@ -78,6 +82,10 @@ class DeckChangesApp(ctk.CTk):
         self.textbox_new = TextboxWithPlaceholder(self.frame_new, placeholder="2x Island\n1x Counterspell")
         self.textbox_new.grid(row=2, column=0, padx=10, pady=10, sticky="nsew")
         self.textbox_new.bind("<Control-a>", lambda e: self.select_all(self.textbox_new))
+
+        self._timer_new = None
+        self.decklist_new = None
+        self.textbox_new.bind("<KeyRelease>", lambda e: self.schedule_parsing('new'))
 
         self.btn_clear_new = ctk.CTkButton(self.frame_new, text="Vider", font=ctk.CTkFont(weight="bold"), command=lambda: self.clear_all(self.textbox_new))
         self.btn_clear_new.grid(row=3, column=0, columnspan=1, padx=10, pady=10, sticky="ew")
@@ -160,35 +168,86 @@ class DeckChangesApp(ctk.CTk):
             label.grid(row=1, column=0, pady=(0, 5))
 
 
-    def compute_changes(self):
-        # Get raw deck lists from textboxes
-        deck_list_old_raw = self.textbox_old.get_content()
-        deck_list_new_raw = self.textbox_new.get_content()
+    def schedule_parsing(self, mode: str):
+        if mode == 'old':
+            if self._timer_old is not None:
+                self.after_cancel(self._timer_old)
+            self._timer_old = self.after(ASYNC_PARSING_TIME, lambda: self.async_parsing('old'))
+            self.decklist_old = None
 
+        else:
+            if self._timer_new is not None:
+                self.after_cancel(self._timer_new)
+            self._timer_new = self.after(ASYNC_PARSING_TIME, lambda: self.async_parsing('new'))
+            self.decklist_new = None
+
+
+    def async_parsing(self, mode: str):
+        if mode == 'old':
+            raw_text = self.textbox_old.get_content()
+            label = self.label_info_old
+        else:
+            raw_text = self.textbox_new.get_content()
+            label = self.label_info_new
+
+        if not raw_text.strip():
+            self.update_deck_info(label, "")
+            if mode == "old":
+                self.decklist_old = None
+            else:
+                self.decklist_new = None
+            return
+
+        try:
+            decklist, warning_message = parse_decklist(raw_text)
+            self.update_deck_info(label, warning_message, is_warning=True)
+            if mode == "old":
+                self.decklist_old = decklist
+            else:
+                self.decklist_new = decklist
+        except DeckParseError as e:
+            # S'il y a une erreur de format, ça l'affiche en rouge
+            self.update_deck_info(label, str(e), is_warning=False)
+
+
+    def compute_changes(self):
         # Parse deck lists
         need_exit = False
 
-        deck_list_old = None
-        try:
-            deck_list_old, warning_message = parse_deck_list(deck_list_old_raw)
-            self.update_deck_info(self.label_info_old, warning_message, is_warning=True)
-        except DeckParseError as e:
-            self.update_deck_info(self.label_info_old, str(e), is_warning=False)
-            need_exit = True
+        if self._timer_old is not None:
+            self.after_cancel(self._timer_old)
+            self._timer_old = None
 
-        deck_list_new = None
-        try:
-            deck_list_new, warning_message = parse_deck_list(deck_list_new_raw)
-            self.update_deck_info(self.label_info_new, warning_message, is_warning=True)
-        except DeckParseError as e:
-            self.update_deck_info(self.label_info_new, str(e), is_warning=False)
-            need_exit = True
+        if self._timer_new is not None:
+            self.after_cancel(self._timer_new)
+            self._timer_new = None
+
+        if self.decklist_old == None:
+            decklist_old_raw = self.textbox_old.get_content()
+            try:
+                decklist_old, warning_message = parse_decklist(decklist_old_raw)
+                self.update_deck_info(self.label_info_old, warning_message, is_warning=True)
+                self.decklist_old = decklist_old
+            except DeckParseError as e:
+                self.update_deck_info(self.label_info_old, str(e), is_warning=False)
+                need_exit = True
+
+        if self.decklist_new == None:
+            decklist_new_raw = self.textbox_new.get_content()
+            decklist_new = None
+            try:
+                decklist_new, warning_message = parse_decklist(decklist_new_raw)
+                self.update_deck_info(self.label_info_new, warning_message, is_warning=True)
+                self.decklist_new = decklist_new
+            except DeckParseError as e:
+                self.update_deck_info(self.label_info_new, str(e), is_warning=False)
+                need_exit = True
 
         if need_exit:
             return
 
         # Get changes
-        added_cards, removed_cards, number_of_changes = get_deck_changes(deck_list_old, deck_list_new)
+        added_cards, removed_cards, number_of_changes = get_deck_changes(self.decklist_old, self.decklist_new)
         self.changes_copy = create_changes_copy(added_cards, removed_cards)
 
         # Clear changes list
