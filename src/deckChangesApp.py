@@ -247,7 +247,7 @@ class DeckChangesApp(ctk.CTk):
                 self.textbox_old.set_content(decklist_old_raw)
 
             try:
-                decklist_old, warning_message = parse_decklist(decklist_old_raw)
+                decklist_old, warning_message = parse_decklist(decklist_old_raw, allow_empty=True)
                 self.update_deck_info(self.label_info_old, warning_message, is_warning=True)
                 self.decklist_old = decklist_old
             except DeckParseError as e:
@@ -268,7 +268,7 @@ class DeckChangesApp(ctk.CTk):
                 self.update_deck_info(self.label_info_new, str(e), is_warning=False)
                 need_exit = True
 
-        if need_exit or self.decklist_old is None or self.decklist_new is None:
+        if need_exit or self.decklist_new is None:
             return
 
         # Get changes

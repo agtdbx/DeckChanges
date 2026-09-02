@@ -5,7 +5,10 @@ class DeckParseError(Exception):
     pass
 
 
-def parse_decklist(deck_list_raw: str) -> list[tuple[int, str]]:
+def parse_decklist(
+        deck_list_raw: str,
+        allow_empty: bool = False
+        ) -> list[tuple[int, str]]:
     warning_message = ""
 
     # Parse deck list
@@ -50,9 +53,10 @@ def parse_decklist(deck_list_raw: str) -> list[tuple[int, str]]:
         deck_list.append((card_number, card_name))
 
     if number_of_cards == 0:
-        raise DeckParseError("Erreur : Le deck est vide")
+        if not allow_empty:
+            raise DeckParseError("Erreur : Le deck est vide")
 
-    if number_of_cards not in VALID_DECK_SIZES:
+    elif number_of_cards not in VALID_DECK_SIZES:
         smart_s = "s" if number_of_cards > 1 else ""
         warning_message = f"Attention : Le deck contient {number_of_cards} carte{smart_s}\nau lieu de {VALID_DECK_SIZES}"
 
