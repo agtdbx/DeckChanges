@@ -9,9 +9,10 @@ SCRYFALL_URL = "https://api.scryfall.com"
 HEADERS = {
     "User-Agent": f"DeckChanges/{VERSION} ({CONTACT_EMAIL})"
 }
+CARD_IMAGE_SIZE = (250, 350)
 
-
-def get_card_art(
+# Delver of Secrets
+def get_card_images(
         card_name: str
         ) -> tuple[ctk.CTkImage, ctk.CTkImage | None] | None:
     # Get card info
@@ -66,4 +67,4 @@ def _get_image_from_uris(
     image_data = reponse_image.content
     image = Image.open(io.BytesIO(image_data))
 
-    return ctk.CTkImage(light_image=image, dark_image=image, size=(250, 350))
+    return ctk.CTkImage(light_image=image, dark_image=image, size=CARD_IMAGE_SIZE)

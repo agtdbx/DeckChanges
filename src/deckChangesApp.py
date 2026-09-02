@@ -4,7 +4,7 @@ import customtkinter as ctk
 from define import APP_TITLES, WINDOW_START_SIZE, WINDOW_MIN_SIZE
 from transformations import DeckParseError, parse_deck_list, get_deck_changes, create_changes_copy
 from ui.textbox_with_placeholder import TextboxWithPlaceholder
-from scryfall_api import get_card_art
+from scryfall_api import get_card_images
 
 class DeckChangesApp(ctk.CTk):
     def __init__(self):
@@ -103,21 +103,40 @@ class DeckChangesApp(ctk.CTk):
         self.label_nb_changes = ctk.CTkLabel(tab_changes, text="Pas de modifications", font=ctk.CTkFont(weight="bold"))
         self.label_nb_changes.grid(row=0, column=0, columnspan=2, sticky="n")
 
-        # Scroll list for changes
+        # ==========================================
+        # Changes list
+        # ==========================================
         self.scrollable_changes = ctk.CTkScrollableFrame(tab_changes)
         self.scrollable_changes.grid(row=1, column=0, padx=10, pady=10, sticky="nsew")
 
+        # ==========================================
+        # Card image
+        # ==========================================
+        self.frame_card_image = ctk.CTkFrame(tab_changes)
+        self.frame_card_image.grid(row=1, column=1, padx=10, pady=(10, 5), sticky="nsew")
+
+        self.frame_card_image.grid_columnconfigure(0, weight=1)
+        self.frame_card_image.grid_rowconfigure(0, weight=1)
+        self.frame_card_image.grid_rowconfigure(1, weight=0)
+
         # Image for art of the card selected
         self.image_preview_label = ctk.CTkLabel(
-            tab_changes,
+            self.frame_card_image,
             text="Pas de carte\nsélectionnée",
             font=ctk.CTkFont(size=20, weight="bold"),
             fg_color=("gray80", "gray20"), # Fond visible pour prototyper
             corner_radius=10
         )
-        self.image_preview_label.grid(row=1, column=1, padx=10, pady=10, sticky="nsew")
+        self.image_preview_label.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
 
-        # Button copy
+        # Button switch image
+        self.btn_flip_image = ctk.CTkButton(self.frame_card_image, text="Retourner la carte", command=self.flip_card_image)
+        # self.btn_flip_image.grid(row=1, column=0, padx=10, pady=10, sticky="sew")
+        self.card_images = None
+
+        # ==========================================
+        # Button
+        # ==========================================
         self.btn_copy = ctk.CTkButton(tab_changes, text="Copier les changements", command=self.copy_to_clipboard)
         self.btn_copy.grid(row=2, column=0, columnspan=2, padx=10, pady=10, sticky="ew")
         self.changes_copy = ""
@@ -177,7 +196,8 @@ class DeckChangesApp(ctk.CTk):
             widget.destroy()
 
         # Clear image preview
-        self.image_preview_label.configure(image=None, text=f"Pas de carte\nsélectionnée")
+        self.image_preview_label.configure(image="", text=f"Pas de carte\nsélectionnée")
+        self.btn_flip_image.grid_remove()
 
         # Update label for nb changes
         if number_of_changes > 0:
@@ -185,17 +205,6 @@ class DeckChangesApp(ctk.CTk):
             self.label_nb_changes.configure(text=f"{number_of_changes} changement{smart_s} :")
         else:
             self.label_nb_changes.configure(text="Pas de modifications")
-
-        # Callback of card in changes
-        def on_card_click(card_name):
-            card_art = get_card_art(card_name)
-
-            if card_art and card_art[0]:
-                self.image_preview_label.configure(image=card_art[0], text="")
-            else:
-                self.image_preview_label.configure(image=None, text=f"Impossible de trouver l'art pour :\n{card_name}")
-
-        # TODO: Make click flip card art if possible
 
         # Fill changes list with added cards
         for card_number, card_name in added_cards:
@@ -211,7 +220,7 @@ class DeckChangesApp(ctk.CTk):
                 text_color="lightgreen",
                 fg_color="transparent",
                 anchor="w",
-                command=lambda name=card_name: on_card_click(name)
+                command=lambda name=card_name: self.on_card_click(name)
             )
             btn.pack(fill="x", pady=2)
 
@@ -229,7 +238,7 @@ class DeckChangesApp(ctk.CTk):
                 text_color="salmon",
                 fg_color="transparent",
                 anchor="w",
-                command=lambda name=card_name: on_card_click(name)
+                command=lambda name=card_name: self.on_card_click(name)
             )
             btn.pack(fill="x", pady=2)
 
@@ -240,5 +249,28 @@ class DeckChangesApp(ctk.CTk):
         self.clipboard_clear()
         self.clipboard_append(self.changes_copy)
         self.btn_copy.configure(text="Copié ! ✔️", fg_color="green")
-        # Remet le bouton à son état normal après 2 secondes
+
+        # Reset button style after 2 seconds
         self.after(2000, lambda: self.btn_copy.configure(text="Copier les changements", fg_color=["#3B8ED0", "#1F6AA5"]))
+
+
+    def on_card_click(self, card_name):
+        self.card_images = get_card_images(card_name)
+
+        if self.card_images and self.card_images[0]:
+            self.image_preview_label.configure(image=self.card_images[0], text="")
+            if self.card_images[1]:
+                self.btn_flip_image.grid(row=1, column=0, padx=10, pady=10, sticky="sew")
+            else:
+                self.btn_flip_image.grid_remove()
+        else:
+            self.image_preview_label.configure(image="", text=f"Impossible de trouver l'image pour :\n{card_name}")
+            self.btn_flip_image.grid_remove()
+
+
+    def flip_card_image(self):
+        if not self.card_images or not self.card_images[1]:
+            return
+
+        self.card_images = (self.card_images[1], self.card_images[0])
+        self.image_preview_label.configure(image=self.card_images[0], text="")
